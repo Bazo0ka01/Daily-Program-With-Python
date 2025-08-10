@@ -15,8 +15,8 @@ def speak(text):
     engine.runAndWait()
 
 def alarm_trigger(window, idx, task_text):
-    messagebox.showinfo("Görev Zamanı", f"Zamanı geldi: {task_text}")
-    speak(f"Görev zamanı: {task_text}")
+    messagebox.showinfo("Task Time", f"Time is up: {task_text}")
+    speak(f"Task time: {task_text}")
 
     if idx < len(alarms):
         task_listbox.delete(idx)
@@ -43,7 +43,7 @@ def add_task():
     global alarms
     task = task_entry.get()
     if task == "" or task == placeholder_text:
-        messagebox.showwarning("Uyarı", "Lütfen bir görev yazınız!")
+        messagebox.showwarning("Warning", "Please enter a task!")
         return
 
     try:
@@ -53,12 +53,12 @@ def add_task():
         hour = int(hour_combo.get())
         minute = int(minute_combo.get())
         alarm_time = datetime.datetime(year, month, day, hour, minute)
-    except Exception as e:
-        messagebox.showwarning("Uyarı", "Lütfen geçerli tarih ve saat seçin!")
+    except Exception:
+        messagebox.showwarning("Warning", "Please select a valid date and time!")
         return
 
     if alarm_time <= datetime.datetime.now():
-        messagebox.showwarning("Uyarı", "Seçilen zaman geçmişte olamaz!")
+        messagebox.showwarning("Warning", "Selected time cannot be in the past!")
         return
 
     alarms.append((alarm_time, task))
@@ -73,14 +73,14 @@ def delete_task():
     global alarms
     selected = task_listbox.curselection()
     if not selected:
-        messagebox.showwarning("Uyarı", "Silinecek görevi seçin!")
+        messagebox.showwarning("Warning", "Please select a task to delete!")
         return
     idx = selected[0]
     if idx < len(alarms):
         task_listbox.delete(idx)
         del alarms[idx]
     else:
-        messagebox.showerror("Hata", "Görev silinemedi, indeks hatası.")
+        messagebox.showerror("Error", "Failed to delete task, index error.")
 
 def on_entry_click(event):
     if task_entry.get() == placeholder_text:
@@ -92,7 +92,7 @@ def on_focus_out(event):
         task_entry.insert(0, placeholder_text)
         task_entry.config(fg="gray")
 
-def driwe_window():
+def draw_window():
     global task_entry, task_listbox, placeholder_text
     global year_combo, month_combo, day_combo, hour_combo, minute_combo
     global alarms
@@ -100,17 +100,17 @@ def driwe_window():
     alarms = []
 
     window = tk.Tk()
-    window.title("Günlük Program")
+    window.title("Daily Planner")
     screen_width = window.winfo_screenwidth()
     screen_height = window.winfo_screenheight()
     position_x = int((screen_width - window_width) / 2)
     position_y = int((screen_height - window_height) / 2)
     window.geometry(f"{window_width}x{window_height}+{position_x}+{position_y}")
 
-    main_label = tk.Label(window, text="GÜNLÜK PROGRAM", font=("Arial", 16))
+    main_label = tk.Label(window, text="DAILY PLANNER", font=("Arial", 16))
     main_label.pack(pady=10)
 
-    placeholder_text = "Görevinizi buraya yazın..."
+    placeholder_text = "Write your task here..."
     task_entry = tk.Entry(window, fg="gray", width=40)
     task_entry.insert(0, placeholder_text)
     task_entry.bind("<FocusIn>", on_entry_click)
@@ -140,13 +140,13 @@ def driwe_window():
     minute_combo.set(f"{datetime.datetime.now().minute:02}")
     minute_combo.grid(row=0, column=4)
 
-    add_button = tk.Button(window, text="Görev Ekle", command=add_task)
+    add_button = tk.Button(window, text="Add Task", command=add_task)
     add_button.pack(pady=10)
 
     task_listbox = tk.Listbox(window, width=60, height=15)
     task_listbox.pack(pady=10)
 
-    delete_button = tk.Button(window, text="Seçili Görevi Sil", command=delete_task)
+    delete_button = tk.Button(window, text="Delete Selected Task", command=delete_task)
     delete_button.pack(pady=5)
 
     t = threading.Thread(target=check_alarms, args=(window,), daemon=True)
@@ -155,4 +155,4 @@ def driwe_window():
     window.mainloop()
 
 if __name__ == "__main__":
-    driwe_window()
+    draw_window()
